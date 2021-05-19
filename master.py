@@ -5,30 +5,30 @@ import random
 #Funciones
 #===============================================================================
 #Ecuaciones del oscilador HO1
-def Fx1(x,y,z,w)
-    a,b = 4., 6.
+def Fx1(x,y,z,w):
+    a,b = 3., 6.
     Fx = a*x - b*y*z - 10.
     return Fx
 
-def Fx2(x,y,z,w)
+def Fx2(x,y,z,w):
     c,k = 10.,2.5
     Fy = -c*y + x*z + k*w
     return Fy
 
-def Fx3(x,y,z,w)
-    d,e = 5.,2.
+def Fx3(x,y,z,w):
+    d,e = 7.,2.
     Fz = -d*z + e*x*z
     return Fz
 
-def Fx4(x,y,z,w)
+def Fx4(x,y,z,w):
+    f = 0.05
+    Fw = f*(x+z)
+    return Fw
 #===============================================================================
 #Métodos numéricos
-def forward_euler(xn,yn,zn,wn,h)
-    x1(i+1) = x1(i) + h*Fx1(x1(i),x2(i),x3(i),x4(i))
-    x2(i+1) = x2(i) + h*Fx2(x1(i),x2(i),x3(i),x4(i))
-    x3(i+1) = x3(i) + h*Fx3(x1(i),x2(i),x3(i),x4(i))
-    x4(i+1) = x4(i) + h*Fx4(x1(i),x2(i),x3(i),x4(i))
-return x,y,z,w
+def forward_euler(xn,yn,zn,wn,h):
+    x,y,z,w = xn+h*Fx1(xn,yn,zn,wn),yn+h*Fx2(xn,yn,zn,wn),zn+h*Fx3(xn,yn,zn,wn),wn+h*Fx4(xn,yn,zn,wn)
+    return x,y,z,w
 #===============================================================================
 #Inicio
 
@@ -44,6 +44,15 @@ n = int(float(nn))
 s = int(ss)
 t = int(tt)
 
+xo,yo,wo,zo = np.zeros(s,type=float),np.zeros(s,type=float),np.zeros(s,type=float),np.zeros(s,type=float)
+c = (60,30,15,)
+
+for j in range(0,s):
+    xo[j] = (random.random()-0.5)*60
+    yo[j] = (random.random()-0.5)*30
+    zo[j] = (random.random()-0.5)*40
+    wo[j] = (random.random()-0.5)*2
+
 print("Número de pasos:", n)
 print("Número de corridas:", s)
 print("Estado transitorio:", t)
@@ -52,12 +61,21 @@ print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
 h = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(b + "_" + met)
+arch = open(b + "_" + met + v + ".rnd","w") #"wb" para binario
+o = 0
+i = 0
 
-for i in range(1:n+1)
+while i < n+1:
+    if i%s == 0:
+        xn,yn,zn,wn = xo[o],yo[o],zo[o],wo[o]
+        o = o + 1
+    else:
+        xn,yn,zn,wn = x,y,z,w
 
     if met == 'FE':
         x,y,z,w = forward_euler(xn,yn,zn,wn,h[0])
         arch.write(t,x,y,z,w)
+        
+    i = i + 1
 
 arch.close
