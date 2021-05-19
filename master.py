@@ -6,18 +6,18 @@ import random
 #===============================================================================
 #Ecuaciones del oscilador HO1
 def Fx1(x,y,z,w):
-    a,b = 3., 6.
-    Fx = a*x - b*y*z - 10.
+    a,b = 4., 6.
+    Fx = (a*x) - (b*y*z) - 10.
     return Fx
 
 def Fx2(x,y,z,w):
     c,k = 10.,2.5
-    Fy = -c*y + x*z + k*w
+    Fy = (-c*y) + (x*z) + (k*w)
     return Fy
 
 def Fx3(x,y,z,w):
-    d,e = 7.,2.
-    Fz = -d*z + e*x*z
+    d,e = 5.,2.
+    Fz = (-d*z) + (e*x*z)
     return Fz
 
 def Fx4(x,y,z,w):
@@ -66,19 +66,23 @@ o = 0
 i = 0
 t = 0
 
-x,y,z,w = xo[0],yo[0],zo[0],wo[0]
+x,y,z,w = -0.91,-2.3,0.91,1.#condiciones iniciales
+
 while i < n+1:
 #     if i%s == 0:
 #         xn,yn,zn,wn = xo[o],yo[o],zo[o],wo[o]
 #         o = o + 1
 #     else:
 #         xn,yn,zn,wn = x,y,z,w
-    xn,yn,zn,wn = x,y,z,w
-    if met == 'FE':
-        h = hh[0]
-        x,y,z,w = forward_euler(xn,yn,zn,wn,h)
 
     arch.write('%.5f' % t + '\t' + '%.5f' % x + '\t' + '%.5f' % y + '\t' + '%.5f' % z + '\t' + '%.5f' % w + '\n')
+    h = hh[0]
+    xn,yn,zn,wn = x,y,z,w
+
+    x = xn+(h*Fx1(xn,yn,zn,wn))
+    y = yn+(h*Fx2(xn,yn,zn,wn))
+    z = zn+(h*Fx3(xn,yn,zn,wn))
+    w = wn+(h*Fx4(xn,yn,zn,wn))
 
     i = i + 1
     t = t + h
