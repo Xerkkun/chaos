@@ -44,7 +44,7 @@ n = int(float(nn))
 s = int(ss)
 t = int(tt)
 
-xo,yo,wo,zo = np.zeros(s,type=float),np.zeros(s,type=float),np.zeros(s,type=float),np.zeros(s,type=float)
+xo,yo,wo,zo = np.zeros(s,dtype=float),np.zeros(s,dtype=float),np.zeros(s,dtype=float),np.zeros(s,dtype=float)
 c = (60,30,15,)
 
 for j in range(0,s):
@@ -60,22 +60,27 @@ print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
-h = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
+hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
 arch = open(b + "_" + met + v + ".rnd","w") #"wb" para binario
 o = 0
 i = 0
+t = 0
 
+x,y,z,w = xo[0],yo[0],zo[0],wo[0]
 while i < n+1:
-    if i%s == 0:
-        xn,yn,zn,wn = xo[o],yo[o],zo[o],wo[o]
-        o = o + 1
-    else:
-        xn,yn,zn,wn = x,y,z,w
-
+#     if i%s == 0:
+#         xn,yn,zn,wn = xo[o],yo[o],zo[o],wo[o]
+#         o = o + 1
+#     else:
+#         xn,yn,zn,wn = x,y,z,w
+    xn,yn,zn,wn = x,y,z,w
     if met == 'FE':
-        x,y,z,w = forward_euler(xn,yn,zn,wn,h[0])
-        arch.write(t,x,y,z,w)
-        
+        h = hh[0]
+        x,y,z,w = forward_euler(xn,yn,zn,wn,h)
+
+    arch.write('%.5f' % t + '\t' + '%.5f' % x + '\t' + '%.5f' % y + '\t' + '%.5f' % z + '\t' + '%.5f' % w + '\n')
+
     i = i + 1
+    t = t + h
 
 arch.close
