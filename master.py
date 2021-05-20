@@ -17,7 +17,7 @@ def Fx2(x,y,z,w):
 
 def Fx3(x,y,z,w):
     d,e = 5.,2.
-    Fz = (-d*z) + (e*x*z)
+    Fz = (-d*z) + (e*x*y)
     return Fz
 
 def Fx4(x,y,z,w):
