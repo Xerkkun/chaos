@@ -83,6 +83,34 @@ def adams_bashforth(
     475*Fx4(xn5,yn5,zn5,wn5)))
 
     return x,y,z,w
+#-------------------------------------------------------------------------------
+def adams_moulton4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,h):
+
+    x1,y1,z1,w1 = forward_euler(xn,yn,zn,wn,h)
+
+    x = xn + (h/24.) * (9*Fx1(x1,y1,z1,w1) + 19*Fx1(xn,yn,zn,wn) -
+    5*Fx1(xn1,yn1,zn1,wn1) + Fx1(xn2,yn2,zn2,wn2))
+
+    y = yn + (h/24.) * (9*Fx2(x1,y1,z1,w1) + 19*Fx2(xn,yn,zn,wn) -
+    5*Fx2(xn1,yn1,zn1,wn1) + Fx2(xn2,yn2,zn2,wn2))
+
+    z = zn + (h/24.) * (9*Fx3(x1,y1,z1,w1) + 19*Fx3(xn,yn,zn,wn) -
+    5*Fx3(xn1,yn1,zn1,wn1) + Fx3(xn2,yn2,zn2,wn2))
+
+    w = wn + (h/24.) * (9*Fx4(x1,y1,z1,w1) + 19*Fx4(xn,yn,zn,wn) -
+    5*Fx4(xn1,yn1,zn1,wn1) + Fx4(xn2,yn2,zn2,wn2))
+
+    return x,y,z,w
+#===============================================================================
+def gear4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,xn3,yn3,zn3,wn3,h):
+    x1,y1,z1,w1 = forward_euler(xn,yn,zn,wn,h)
+
+    x = (48./25.)*xn - (36./25.)*xn1 + (16./25.)*xn2 - (3./25.)*xn3 + (12./25.)*h*Fx1(x1,y1,z1,w1)
+    y = (48./25.)*yn - (36./25.)*yn1 + (16./25.)*yn2 - (3./25.)*yn3 + (12./25.)*h*Fx2(x1,y1,z1,w1)
+    z = (48./25.)*zn - (36./25.)*zn1 + (16./25.)*zn2 - (3./25.)*zn3 + (12./25.)*h*Fx3(x1,y1,z1,w1)
+    w = (48./25.)*wn - (36./25.)*wn1 + (16./25.)*wn2 - (3./25.)*wn3 + (12./25.)*h*Fx4(x1,y1,z1,w1)
+
+    return x,y,z,w
 #===============================================================================
 #Métodos de secuencias binarias
 def umbral(x,y,z,w,sel):
@@ -172,6 +200,12 @@ while r < s:
         h = hh[3]
         x,y,z,w = adams_bashforth(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
                                 xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h)
+    elif met == 'AM4':
+        h = hh[4]
+        x,y,z,w = adams_moulton4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,h)
+    elif met == 'G4':
+        h = hh[5]
+        x,y,z,w = gear4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,xn3,yn3,zn3,wn3,h)
 
     xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
     xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
