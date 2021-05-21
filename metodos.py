@@ -83,7 +83,7 @@ print("Número de pasos:", n)
 print("Método numérico: ", met)
 
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(b + "_" + met + v + ".rnd","w") #"wb" para escribir archivos con formato binario
+arch = open(met + ".rnd","w") #"wb" para escribir archivos con formato binario
 i,t = 0,0
 
 x,y,z,w = xo,yo,zo,wo #condiciones iniciales
