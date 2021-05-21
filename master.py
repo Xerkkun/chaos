@@ -61,6 +61,28 @@ def runge_kutta4(xn,yn,zn,wn,h):
     w = wn + (h/6.)*(k1 + 2*k2 + 2*k3 + k4)
 
     return x,y,z,w
+#-------------------------------------------------------------------------------
+def adams_bashforth(
+    xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+    xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h):
+
+    x = (xn + (h/1440.) * (4277*Fx1(xn,yn,zn,wn) - 7923*Fx1(xn1,yn1,zn1,wn1) +
+    9982*Fx1(xn2,yn2,zn2,wn2)-7298*Fx1(xn3,yn3,zn3,wn3) + 2877*Fx1(xn4,yn4,zn4,wn4) -
+    475*Fx1(xn5,yn5,zn5,wn5)))
+
+    y = (yn + (h/1440.) * (4277*Fx2(xn,yn,zn,wn) - 7923*Fx2(xn1,yn1,zn1,wn1) +
+    9982*Fx2(xn2,yn2,zn2,wn2)-7298*Fx2(xn3,yn3,zn3,wn3) + 2877*Fx2(xn4,yn4,zn4,wn4) -
+    475*Fx2(xn5,yn5,zn5,wn5)))
+
+    z = (zn + (h/1440.) * (4277*Fx3(xn,yn,zn,wn) - 7923*Fx3(xn1,yn1,zn1,wn1) +
+    9982*Fx3(xn2,yn2,zn2,wn2)-7298*Fx3(xn3,yn3,zn3,wn3) + 2877*Fx3(xn4,yn4,zn4,wn4) -
+    475*Fx3(xn5,yn5,zn5,wn5)))
+
+    w = (wn + (h/1440.) * (4277*Fx4(xn,yn,zn,wn) - 7923*Fx4(xn1,yn1,zn1,wn1) +
+    9982*Fx4(xn2,yn2,zn2,wn2)-7298*Fx4(xn3,yn3,zn3,wn3) + 2877*Fx4(xn4,yn4,zn4,wn4) -
+    475*Fx4(xn5,yn5,zn5,wn5)))
+
+    return x,y,z,w
 #===============================================================================
 #Métodos de secuencias binarias
 def umbral(x,y,z,w,sel):
@@ -118,6 +140,11 @@ var = ['x','y','z','w']
 sel = var.index(v)
 
 x,y,z,w = 0,0,0,0 #condiciones iniciales
+xn1,yn1,zn1,wn1 = 0,0,0,0
+xn2,yn2,zn2,wn2 = 0,0,0,0
+xn3,yn3,zn3,wn3 = 0,0,0,0
+xn4,yn4,zn4,wn4 = 0,0,0,0
+xn5,yn5,zn5,wn5 = 0,0,0,0
 
 if b == "umbral":
     k = 1
@@ -141,6 +168,16 @@ while r < s:
     elif met == 'RK4':
         h = hh[2]
         x,y,z,w = runge_kutta4(xn,yn,zn,wn,h)
+    elif met == 'AB6':
+        h = hh[3]
+        x,y,z,w = adams_bashforth(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+                                xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h)
+
+    xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
+    xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
+    xn3,yn3,zn3,wn3 = xn2,yn2,zn2,wn2
+    xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
+    xn1,yn1,zn1,wn1 = xn,yn,zn,wn
 
     if abs(x)>50:
         print("Overflow in r = ",r)
