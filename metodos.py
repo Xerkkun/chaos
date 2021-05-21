@@ -61,6 +61,28 @@ def runge_kutta4(xn,yn,zn,wn,h):
     w = wn + (h/6.)*(k1 + 2*k2 + 2*k3 + k4)
 
     return x,y,z,w
+#-------------------------------------------------------------------------------
+def adams_bashforth(
+    xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+    xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h):
+
+    x = (xn + (h/1440.) * (4277*Fx1(xn,yn,zn,wn) - 7923*Fx1(xn1,yn1,zn1,wn1) +
+    9982*Fx1(xn2,yn2,zn2,wn2)-7298*Fx1(xn3,yn3,zn3,wn3) + 2877*Fx1(xn4,yn4,zn4,wn4) -
+    475*Fx1(xn5,yn5,zn5,wn5)))
+
+    y = (yn + (h/1440.) * (4277*Fx2(xn,yn,zn,wn) - 7923*Fx2(xn1,yn1,zn1,wn1) +
+    9982*Fx2(xn2,yn2,zn2,wn2)-7298*Fx2(xn3,yn3,zn3,wn3) + 2877*Fx2(xn4,yn4,zn4,wn4) -
+    475*Fx2(xn5,yn5,zn5,wn5)))
+
+    z = (zn + (h/1440.) * (4277*Fx3(xn,yn,zn,wn) - 7923*Fx3(xn1,yn1,zn1,wn1) +
+    9982*Fx3(xn2,yn2,zn2,wn2)-7298*Fx3(xn3,yn3,zn3,wn3) + 2877*Fx3(xn4,yn4,zn4,wn4) -
+    475*Fx3(xn5,yn5,zn5,wn5)))
+
+    w = (wn + (h/1440.) * (4277*Fx4(xn,yn,zn,wn) - 7923*Fx4(xn1,yn1,zn1,wn1) +
+    9982*Fx4(xn2,yn2,zn2,wn2)-7298*Fx4(xn3,yn3,zn3,wn3) + 2877*Fx4(xn4,yn4,zn4,wn4) -
+    475*Fx4(xn5,yn5,zn5,wn5)))
+
+    return x,y,z,w
 #===============================================================================
 #===============================================================================
 #Inicio
@@ -86,6 +108,13 @@ hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
 arch = open(met + ".rnd","w") #"wb" para escribir archivos con formato binario
 i,t = 0,0
 
+xn1,yn1,zn1,wn1 = 0,0,0,0
+xn2,yn2,zn2,wn2 = 0,0,0,0
+xn3,yn3,zn3,wn3 = 0,0,0,0
+xn4,yn4,zn4,wn4 = 0,0,0,0
+xn5,yn5,zn5,wn5 = 0,0,0,0
+xn6,yn6,zn6,wn6 = 0,0,0,0
+
 x,y,z,w = xo,yo,zo,wo #condiciones iniciales
 
 for i in range(0,n):
@@ -100,6 +129,17 @@ for i in range(0,n):
     elif met == 'RK4':
         h = hh[2]
         x,y,z,w = runge_kutta4(xn,yn,zn,wn,h)
+    elif met == 'AB6':
+        h = hh[3]
+        x,y,z,w = adams_bashforth(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+                                xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h)
+
+        xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
+        xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
+        xn3,yn3,zn3,wn3 = xn2,yn2,zn2,wn2
+        xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
+        xn1,yn1,zn1,wn1 = xn,yn,zn,wn
+
 
     arch.write('%.5f' % t + '\t' + '%.5f' % x + '\t' + '%.5f' % y + '\t' + '%.5f' % z + '\t' + '%.5f' % w + '\n')
     t = t + h
