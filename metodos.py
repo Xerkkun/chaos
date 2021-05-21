@@ -62,9 +62,8 @@ def runge_kutta4(xn,yn,zn,wn,h):
 
     return x,y,z,w
 #-------------------------------------------------------------------------------
-def adams_bashforth(
-    xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
-    xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h):
+def adams_bashforth6(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+                        xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h):
 
     x = (xn + (h/1440.) * (4277*Fx1(xn,yn,zn,wn) - 7923*Fx1(xn1,yn1,zn1,wn1) +
     9982*Fx1(xn2,yn2,zn2,wn2)-7298*Fx1(xn3,yn3,zn3,wn3) + 2877*Fx1(xn4,yn4,zn4,wn4) -
@@ -81,6 +80,24 @@ def adams_bashforth(
     w = (wn + (h/1440.) * (4277*Fx4(xn,yn,zn,wn) - 7923*Fx4(xn1,yn1,zn1,wn1) +
     9982*Fx4(xn2,yn2,zn2,wn2)-7298*Fx4(xn3,yn3,zn3,wn3) + 2877*Fx4(xn4,yn4,zn4,wn4) -
     475*Fx4(xn5,yn5,zn5,wn5)))
+
+    return x,y,z,w
+#-------------------------------------------------------------------------------
+def adams_moulton4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,h):
+
+    x1,y1,z1,w1 = forward_euler(xn,yn,zn,wn,h)
+
+    x = xn + (h/24.) * (9*Fx1(x1,y1,z1,w1) + 19*Fx1(xn,yn,zn,wn) -
+    5*Fx1(xn1,yn1,zn1,wn1) + Fx1(xn2,yn2,zn2,wn2))
+
+    y = yn + (h/24.) * (9*Fx2(x1,y1,z1,w1) + 19*Fx2(xn,yn,zn,wn) -
+    5*Fx2(xn1,yn1,zn1,wn1) + Fx2(xn2,yn2,zn2,wn2))
+
+    z = zn + (h/24.) * (9*Fx3(x1,y1,z1,w1) + 19*Fx3(xn,yn,zn,wn) -
+    5*Fx3(xn1,yn1,zn1,wn1) + Fx3(xn2,yn2,zn2,wn2))
+
+    w = wn + (h/24.) * (9*Fx4(x1,y1,z1,w1) + 19*Fx4(xn,yn,zn,wn) -
+    5*Fx4(xn1,yn1,zn1,wn1) + Fx4(xn2,yn2,zn2,wn2))
 
     return x,y,z,w
 #===============================================================================
@@ -113,7 +130,6 @@ xn2,yn2,zn2,wn2 = 0,0,0,0
 xn3,yn3,zn3,wn3 = 0,0,0,0
 xn4,yn4,zn4,wn4 = 0,0,0,0
 xn5,yn5,zn5,wn5 = 0,0,0,0
-xn6,yn6,zn6,wn6 = 0,0,0,0
 
 x,y,z,w = xo,yo,zo,wo #condiciones iniciales
 
@@ -131,15 +147,17 @@ for i in range(0,n):
         x,y,z,w = runge_kutta4(xn,yn,zn,wn,h)
     elif met == 'AB6':
         h = hh[3]
-        x,y,z,w = adams_bashforth(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+        x,y,z,w = adams_bashforth6(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
                                 xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h)
+    elif met == 'AM4':
+        h = hh[4]
+        x,y,z,w = adams_moulton4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,h)
 
-        xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
-        xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
-        xn3,yn3,zn3,wn3 = xn2,yn2,zn2,wn2
-        xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
-        xn1,yn1,zn1,wn1 = xn,yn,zn,wn
-
+    xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
+    xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
+    xn3,yn3,zn3,wn3 = xn2,yn2,zn2,wn2
+    xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
+    xn1,yn1,zn1,wn1 = xn,yn,zn,wn
 
     arch.write('%.5f' % t + '\t' + '%.5f' % x + '\t' + '%.5f' % y + '\t' + '%.5f' % z + '\t' + '%.5f' % w + '\n')
     t = t + h
