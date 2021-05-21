@@ -40,6 +40,14 @@ def umbral(x,y,z,w,sel):
     else:
         bin = '0'
     return bin
+#-------------------------------------------------------------------------------
+def mod255(x,y,z,w,sel):
+    u = (0,0,0,0)
+    var2 = (x,y,z,w)
+    bin = format(int((var2[sel]*1E6) % 255),'b')
+    while len(bin) < 8 :	#Acompleta los numeros binarios a palabras de 8 bits
+        bin = '0' + bin
+    return bin
 #===============================================================================
 #Inicio
 
@@ -86,11 +94,9 @@ elif b == "mod255":
 
 while r < s:
     i = i + 1
-
     if i==0:
         r = r + 1
         xn,yn,zn,wn = xo[r],yo[r],zo[r],wo[r]
-
     else:
         xn,yn,zn,wn = x,y,z,w
 
@@ -107,14 +113,15 @@ while r < s:
         wo[r] = (random.random()-0.5)*c[3]
         pos = ((n*r)+r)-antes
         arch.seek(pos,1)
-        despues = arch.tell()
-        i = -1
-        r = r - 1
+        i,r = -1,r-1
 
-    if i > (t-1):
-        bin = umbral(x,y,z,w,sel)
+    if i > (t/k)-1:
+        if b == "umbral":
+            bin = umbral(x,y,z,w,sel)
+        elif b == "mod255":
+            bin = mod255(x,y,z,w,sel)
         arch.write(bin.encode())
-        if i == (n+t-1):
+        if i == ((n+t)/k)-1:
             if (r < s-1):
                 arch.write(("\n").encode())
             i = -1
