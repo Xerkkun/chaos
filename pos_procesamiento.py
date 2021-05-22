@@ -227,30 +227,22 @@ while r < s:
         i,r = -1,r-1
 
     if i > (t/k)-1:
-        if b == "umbral": bin = umbral(x,y,z,w,sel)
-        elif b == "mod255": bin = mod255(x,y,z,w,sel)
-        binp = binp + bin
-        j = j + 1
-        if j == 5:
+        if b == "umbral":
+            bin = umbral(x,y,z,w,sel)
+            binp = binp + bin
+            j = j + 1
+
+        elif b == "mod255":
+            bin = mod255(x,y,z,w,sel)
+            binp = bin
+            j = 8
+
+        if j == 8:
             pos_bin = xor(binp)
             arch.write(pos_bin.encode())
             j,binp = 0,''
             if i == ((n+t)/k)-1:
                 if (r < s-1): arch.write(("\n").encode())
                 i = -1
-                
-    #alternativa con frecuencia de muestreo
-    # if i > (t/k)-1:
-    #     if b == "umbral": bin = umbral(x,y,z,w,sel)
-    #     elif b == "mod255": bin = mod255(x,y,z,w,sel)
-    #     if i%5 == 0:
-    #         binp = binp + bin
-    #         j = j + 1
-    #         if j == 5:
-    #             pos_bin = xor(binp)
-    #             arch.write(pos_bin.encode())
-    #             j,binp = 0,''
-    #     if i == ((n+t)/k)-1:
-    #         if (r < s-1): arch.write(("\n").encode())
-    #         i = -1
+
 arch.close
