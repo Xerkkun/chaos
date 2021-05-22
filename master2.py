@@ -228,17 +228,8 @@ while r < s:
     if i > (t/k)-1:
         if b == "umbral": bin = umbral(x,y,z,w,sel)
         elif b == "mod255": bin = mod255(x,y,z,w,sel)
-        arch.write(bin.encode())
+        if i%5 == 0: arch.write(bin.encode())
         if i == ((n+t)/k)-1:
             if (r < s-1): arch.write(("\n").encode())
             i = -1
-            
-    #alternativa con frecuencia de muestreo
-    # if i > (t/k)-1:
-    #     if b == "umbral": bin = umbral(x,y,z,w,sel)
-    #     elif b == "mod255": bin = mod255(x,y,z,w,sel)
-    #     if i%np == 0: arch.write(bin.encode())
-    #     if i == ((n+t)/k)-1:
-    #         if (r < s-1): arch.write(("\n").encode())
-    #         i = -1
 arch.close
