@@ -130,7 +130,7 @@ def mod255(x,y,z,w,sel):
     return bin
 #-------------------------------------------------------------------------------
 def xor(binp):
-    pos_bin = str((int(binp[0])^int(binp[1])^int(binp[2])^int(binp[3])^int(binp[4])))
+    pos_bin = str(int(binp[0])^int(binp[1])^int(binp[2])^int(binp[3])^int(binp[4]))
     return pos_bin
 #===============================================================================
 #Inicio
@@ -163,8 +163,10 @@ print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
+salida = b + "_" + met + v + "_" + "xor" + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(b + "_" + met + v + "_" + "xor" + ".rnd","wb") #"wb" para escribir archivos con formato binario
+arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
+print("Archivo de salida: ", salida)
 r,i,j = -1,-1,0
 binp = ''
 
@@ -227,7 +229,9 @@ while r < s:
         arch.seek(pos,1)
         i,r = -1,r-1
 
-    if i > (t/k)-1:
+    #Con frecuencia de muestreo
+    if i>(t/k)-1 and (i%nstep)==0:
+
         if b == "umbral":
             bin = umbral(x,y,z,w,sel)
             binp = binp + bin
@@ -238,16 +242,13 @@ while r < s:
             binp = bin
             j = 8
 
-        if i%nstep == 0:
-            binp = binp + bin
-            j = j + 1
-            if j == 8:
-                pos_bin = xor(binp)
-                arch.write(pos_bin.encode())
-                j,binp = 0,''
+    if j == 5:
+        pos_bin = xor(binp)
+        arch.write(pos_bin.encode())
+        j,binp = 0,''
 
-        if i == ((n+t)/k)-1:
-            if (r < s-1): arch.write(("\n").encode())
-            i = -1
+    if i == ((5*nstep*n+t)/k)-1:
+        if (r < s-1): arch.write(("\n").encode())
+        i = -1
 
 arch.close
