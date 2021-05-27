@@ -141,9 +141,10 @@ def xor(binp):
 # t: transitorio (5000)
 # met: método numérico de resolución (FE,BE,RK4,AB6,AM4,G4)
 # bin: método de generación de secuencias binarias (umbral,mod255)
+# nstep: frecuencia de muestreo
 
-nn,ss,tt,met,v,b = input('Parámetros de entrada: ').split()
-n,s,t = int(float(nn)),int(ss),int(tt)
+nn,ss,tt,met,v,b,nstp = input('Parámetros de entrada: ').split()
+n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
 nt = (n+t)*s #pasos totales
 
 xo,yo,wo,zo = np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float)
@@ -237,12 +238,16 @@ while r < s:
             binp = bin
             j = 8
 
-        if j == 8:
-            pos_bin = xor(binp)
-            arch.write(pos_bin.encode())
-            j,binp = 0,''
-            if i == ((n+t)/k)-1:
-                if (r < s-1): arch.write(("\n").encode())
-                i = -1
+        if i%nstep == 0:
+            binp = binp + bin
+            j = j + 1
+            if j == 8:
+                pos_bin = xor(binp)
+                arch.write(pos_bin.encode())
+                j,binp = 0,''
+
+        if i == ((n+t)/k)-1:
+            if (r < s-1): arch.write(("\n").encode())
+            i = -1
 
 arch.close

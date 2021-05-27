@@ -129,9 +129,9 @@ def mod255(x,y,z,w,sel):
         bin = '0' + bin
     return bin
 #-------------------------------------------------------------------------------
-def xor(bin):
-
-    return bin_pos
+def xor(binp):
+    pos_bin = str((int(binp[0])^int(binp[1])^int(binp[2])^int(binp[3])^int(binp[4])))
+    return pos_bin
 #===============================================================================
 #Inicio
 
@@ -141,9 +141,10 @@ def xor(bin):
 # t: transitorio (5000)
 # met: método numérico de resolución (FE,BE,RK4,AB6,AM4,G4)
 # bin: método de generación de secuencias binarias (umbral,mod255)
+# nstep: frecuencia de muestreo
 
-nn,ss,tt,met,v,b = input('Parámetros de entrada: ').split()
-n,s,t = int(float(nn)),int(ss),int(tt)
+nn,ss,tt,met,v,b,nstp = input('Parámetros de entrada: ').split()
+n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
 nt = (n+t)*s #pasos totales
 
 xo,yo,wo,zo = np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float)
@@ -225,20 +226,12 @@ while r < s:
         arch.seek(pos,1)
         i,r = -1,r-1
 
+    #Con frecuencia de muestreo
     if i > (t/k)-1:
         if b == "umbral": bin = umbral(x,y,z,w,sel)
         elif b == "mod255": bin = mod255(x,y,z,w,sel)
-        arch.write(bin.encode())
+        if i%nstep == 0: arch.write(bin.encode())
         if i == ((n+t)/k)-1:
             if (r < s-1): arch.write(("\n").encode())
             i = -1
-            
-    #alternativa con frecuencia de muestreo
-    # if i > (t/k)-1:
-    #     if b == "umbral": bin = umbral(x,y,z,w,sel)
-    #     elif b == "mod255": bin = mod255(x,y,z,w,sel)
-    #     if i%np == 0: arch.write(bin.encode())
-    #     if i == ((n+t)/k)-1:
-    #         if (r < s-1): arch.write(("\n").encode())
-    #         i = -1
 arch.close
