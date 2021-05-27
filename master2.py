@@ -163,8 +163,10 @@ print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
+salida = b + "_" + met + v + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(b + "_" + met + v + ".rnd","wb") #"wb" para escribir archivos con formato binario
+arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
+print("Archivo de salida: ", salida)
 r,i = -1,-1
 
 var = ['x','y','z','w']
@@ -227,11 +229,16 @@ while r < s:
         i,r = -1,r-1
 
     #Con frecuencia de muestreo
-    if i > (t/k)-1:
-        if b == "umbral": bin = umbral(x,y,z,w,sel)
-        elif b == "mod255": bin = mod255(x,y,z,w,sel)
-        if i%nstep == 0: arch.write(bin.encode())
-        if i == ((n+t)/k)-1:
-            if (r < s-1): arch.write(("\n").encode())
-            i = -1
+    if i>(t/k)-1 and (i%nstep)==0:
+        if b=="umbral":
+            bin = umbral(x,y,z,w,sel)
+
+        elif b == "mod255":
+            bin = mod255(x,y,z,w,sel)
+
+        arch.write(bin.encode())
+
+    if i == ((nstep*n+t)/k)-1:
+        if (r < s-1): arch.write(("\n").encode())
+        i = -1
 arch.close
