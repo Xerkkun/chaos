@@ -134,6 +134,21 @@ def xor(binp):
     for i in range(0,5):
         pos_bin = pos_bin ^ int(binp[i])
     return pos_bin
+#-------------------------------------------------------------------------------
+def xor_shift(binp):
+    global A,B,C,D,E,F,regA,regB,regC,regD
+    A = int(binp) ^ C
+    B = int(regA[2]) ^ D
+    C = int(regB[1]) ^ int(regB[2])
+    D = int(regD[1]) ^ int(regD[2])
+    E = D ^ A
+    F = C ^ int(regC[2])
+    regA = str(A) + regA[0:7]
+    regB = str(B) + regB[0:7]
+    regC = str(E) + regC[0:7]
+    regD = str(F) + regD[0:7]
+    out = str(E)
+    return out
 #===============================================================================
 #Inicio
 
@@ -144,8 +159,9 @@ def xor(binp):
 # met: método numérico de resolución (FE,BE,RK4,AB6,AM4,G4)
 # bin: método de generación de secuencias binarias (umbral,mod255)
 # nstep: frecuencia de muestreo
+# pos_pro: método para posprocesamiento (xor,xor_shift,gray)
 
-nn,ss,tt,met,v,b,nstp = input('Parámetros de entrada: ').split()
+nn,ss,tt,met,v,b,nstp,pos_pro = input('Parámetros de entrada: ').split()
 n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
 nt = (n+t)*s #pasos totales
 
@@ -169,7 +185,7 @@ salida = b + "_" + met + v + "_" + "xor" + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
 arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
 print("Archivo de salida: ", salida)
-r,i,j = -1,-1,0
+r,i = -1,-1
 binp = ''
 
 var = ['x','y','z','w']
@@ -185,6 +201,21 @@ xn5,yn5,zn5,wn5 = 0,0,0,0
 if b == "umbral": k = 1
 elif b == "mod255": k = 8
 else: print("Método no definido")
+
+if pos_pro == "xor": kk = 5
+elif pos_pro == "xor_shift": kk = 1
+else: print("Método no definido")
+
+regA = '000'
+regB = '000'
+regC = '000'
+regD = '000'
+A = 0
+B = 0
+C = 0
+D = 0
+E = 0
+F = 0
 
 while r < s:
     i = i + 1
@@ -242,13 +273,19 @@ while r < s:
             bin = mod255(x,y,z,w,sel)
             binp = binp + bin
 
-    if len(binp)==40:
-        for ii in range(0,40,5):
-            pos_bin = xor(binp[ii:ii+5])
+    if len(binp)==40 and pos_pro=="xor":
+        for j in range(0,40,5):
+            pos_bin = xor(binp[j:j+5])
             arch.write(str(pos_bin).encode())
-        j,binp = 0,''
+        binp = ''
 
-    if i == ((5*nstep*n+t)/k)-1:
+    elif len(binp)==8 and pos_pro == "xor_shift":
+        for j in range (0,8):
+            pos_bin = xor_shift(binp[j])
+            arch.write(pos_bin.encode())
+        binp = ''
+
+    if i == ((kk*nstep*n+t)/k)-1:
         if (r < s-1): arch.write(("\n").encode())
         i = -1
 

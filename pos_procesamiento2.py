@@ -130,7 +130,9 @@ def mod255(x,y,z,w,sel):
     return bin
 #-------------------------------------------------------------------------------
 def xor(binp):
-    pos_bin = str(int(binp[0])^int(binp[1])^int(binp[2])^int(binp[3])^int(binp[4])^int(binp[5])^int(binp[6])^int(binp[7]))
+    pos_bin = 0
+    for i in range(0,5):
+        pos_bin = pos_bin ^ int(binp[i])
     return pos_bin
 #-------------------------------------------------------------------------------
 def xor_shift(binp):
@@ -179,9 +181,11 @@ print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
+salida = b + "_" + met + v + "_" + "xor" + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(b + "_" + met + v + "_" + b + ".rnd","wb") #"wb" para escribir archivos con formato binario
-r,i,j = -1,-1,0
+arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
+print("Archivo de salida: ", salida)
+r,i = -1,-1
 binp = ''
 
 var = ['x','y','z','w']
@@ -196,6 +200,10 @@ xn5,yn5,zn5,wn5 = 0,0,0,0
 
 if b == "umbral": k = 1
 elif b == "mod255": k = 8
+else: print("Método no definido")
+
+if pos_pro == "xor": kk = 5
+elif pos_pro == "xor_shift": kk = 1
 else: print("Método no definido")
 
 regA = '000'
@@ -256,29 +264,28 @@ while r < s:
 
     #Con frecuencia de muestreo
     if i>(t/k)-1 and (i%nstep)==0:
+
         if b == "umbral":
             bin = umbral(x,y,z,w,sel)
             binp = binp + bin
-            j = j + 1
 
         elif b == "mod255":
             bin = mod255(x,y,z,w,sel)
-            binp = bin
-            j = 8
+            binp = binp + bin
 
-    if j == 8:
-        if pos_pro == 'xor':
-            pos_bin = xor(binp)
+    if len(binp)==40 and pos_pro=="xor":
+        for j in range(0,40,5):
+            pos_bin = xor(binp[j:j+5])
+            arch.write(str(pos_bin).encode())
+        binp = ''
+
+    elif len(binp)==8 and pos_pro == "xor_shift":
+        for j in range (0,8):
+            pos_bin = xor_shift(binp[j])
             arch.write(pos_bin.encode())
+        binp = ''
 
-        elif pos_pro == 'xor_shift':
-            for l in range (0,8):
-                pos_bin = xor_shift(binp[l])
-                arch.write(pos_bin.encode())
-
-        j,binp = 0,''
-
-    if i == ((n+t)/k)-1:
+    if i == ((kk*nstep*n+t)/k)-1:
         if (r < s-1): arch.write(("\n").encode())
         i = -1
 
