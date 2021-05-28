@@ -130,7 +130,9 @@ def mod255(x,y,z,w,sel):
     return bin
 #-------------------------------------------------------------------------------
 def xor(binp):
-    pos_bin = str(int(binp[0])^int(binp[1])^int(binp[2])^int(binp[3])^int(binp[4]))
+    pos_bin = 0
+    for i in range(0,5):
+        pos_bin = pos_bin ^ int(binp[i])
     return pos_bin
 #===============================================================================
 #Inicio
@@ -235,16 +237,15 @@ while r < s:
         if b == "umbral":
             bin = umbral(x,y,z,w,sel)
             binp = binp + bin
-            j = j + 1
 
         elif b == "mod255":
             bin = mod255(x,y,z,w,sel)
-            binp = bin
-            j = 8
+            binp = binp + bin
 
-    if j == 5:
-        pos_bin = xor(binp)
-        arch.write(pos_bin.encode())
+    if len(binp)==40:
+        for ii in range(0,40,5):
+            pos_bin = xor(binp[ii:ii+5])
+            arch.write(str(pos_bin).encode())
         j,binp = 0,''
 
     if i == ((5*nstep*n+t)/k)-1:
