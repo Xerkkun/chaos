@@ -1,49 +1,11 @@
+import cv2
 import numpy as np
+import itertools
 import math
 import random
 #===============================================================================
 #Funciones
 #===============================================================================
-#Ecuaciones del oscilador HO1
-#def Fx1(x,y,z,w):
-#    a,b = 4., 6.
-#    Fx = (a*x) - (b*y*z) - 10.
-#    return Fx
-
-#def Fx2(x,y,z,w):
-#    c,k = 10.,2.5
-#    Fy = (-c*y) + (x*z) + (k*w)
-#    return Fy
-
-#def Fx3(x,y,z,w):
-#    d,e = 5.,2.
-#    Fz = (-d*z) + (e*x*y)
-#    return Fz
-
-#def Fx4(x,y,z,w):
-#    f = 0.05
-#    Fw = f*(x+z)
-#    return Fw
-
-#Ecuaciones del oscilador HO2
-#def Fx1(x,y,z,w):
-#    Fx = y*z
-#    return Fx
-
-#def Fx2(x,y,z,w):
-#    a = 2.
-#    Fy = x-y-a*w
-#    return Fy
-
-#def Fx3(x,y,z,w):
-#    Fz = 1-x*x
-#    return Fz
-
-#def Fx4(x,y,z,w):
-#    b = 0.1
-#    Fw = b*y
-#    return Fw
-
 #Ecuaciones del oscilador HO3a
 def Fx1(x,y,z,w):
     a = 16.
@@ -200,18 +162,12 @@ def xor_shift(binp):
 # nstep: frecuencia de muestreo
 # pos_pro: método para posprocesamiento (xor,xor_shift,gray)
 
-nn,ss,tt,met,v,b,nstp,pos_pro,oscilador = input('Parámetros de entrada: ').split()
+image1 = cv2.imread("im1.jpg")
+alto,ancho,color = image1.shape
+nn,ss,tt,met,v,b,nstp,pos_pro = color*ancho*alto,1,5000,'FE','x','mod255',1,'xor_shift'
 n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
-nt = (n+t)*s #pasos totales
 
-xo,yo,wo,zo = np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float)
-c = (50,30,30,2) #cotas de las condiciones iniciales
-
-for j in range(0,s+1): #generar condiciones iniciales aleatorias
-    xo[j] = (random.random()-0.5)*c[0]
-    yo[j] = (random.random()-0.5)*c[1]
-    zo[j] = (random.random()-0.5)*c[2]
-    wo[j] = (random.random()-0.5)*c[3]
+xo,yo,wo,zo = 0.2,0.2,0.2,0.2
 
 print("Número de pasos:", n)
 print("Número de corridas:", s)
@@ -221,12 +177,11 @@ print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 print("Método para posprocesamiento", pos_pro)
 
-salida = oscilador + b + "_" + met + v + "_" + pos_pro + ".rnd"
+salida = b + "_" + met + v + "_" + pos_pro + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
-arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
-print("Archivo de salida: ", salida)
 r,i = -1,-1
 binp = ''
+pos_bin = ''
 
 var = ['x','y','z','w']
 sel = var.index(v)
@@ -238,8 +193,8 @@ xn3,yn3,zn3,wn3 = 0,0,0,0
 xn4,yn4,zn4,wn4 = 0,0,0,0
 xn5,yn5,zn5,wn5 = 0,0,0,0
 
-if b == "umbral": k = 1
-elif b == "mod255": k = 8
+if b == "umbral": k = 8
+elif b == "mod255": k = 1
 else: print("Método no definido")
 
 if pos_pro == "xor": kk = 5
@@ -249,12 +204,10 @@ else: print("Método no definido")
 regA,regB,regC,regD = '000','000','000','000'
 A,B,C,D,E,F = 0,0,0,0,0,0
 
-while r < s:
-    i = i + 1
-    if i==0:
-        r = r + 1
-        xn,yn,zn,wn = xo[r],yo[r],zo[r],wo[r]
-    else: xn,yn,zn,wn = x,y,z,w
+x,y,z,w = xo,yo,zo,wo
+
+for i in range (0,t): #Transitorio
+    xn,yn,zn,wn = x,y,z,w
 
     if met == 'FE':
         h = hh[0]
@@ -283,37 +236,65 @@ while r < s:
     xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
     xn1,yn1,zn1,wn1 = xn,yn,zn,wn
 
-    if abs(x)>50:
-        print("Overflow in r = ",r)
-        antes = arch.tell()
-        xo[r] = (random.random()-0.5)*c[0]
-        yo[r] = (random.random()-0.5)*c[1]
-        zo[r] = (random.random()-0.5)*c[2]
-        wo[r] = (random.random()-0.5)*c[3]
-        pos = ((n*r)+r)-antes
-        arch.seek(pos,1)
-        i,r = -1,r-1
+encryp = np.zeros((alto,ancho,color),dtype=int)
+dim_i,dim_j,dim_k = list(range(0,alto)),list(range(0,ancho)),list(range(0,color))
+salida1 = open('data1.dat','w')
+salida2 = open('data2.dat','w')
+f = 0
 
-    if i>(t/k)-1 and (i%nstep)==0:
+for element in itertools.product(dim_i,dim_j,dim_k):
+    xn,yn,zn,wn = x,y,z,w
 
-        if b == "umbral": bin = umbral(x,y,z,w,sel)
-        elif b == "mod255": bin = mod255(x,y,z,w,sel)
-        binp = binp + bin
+    if met == 'FE':
+        h = hh[0]
+        x,y,z,w = forward_euler(xn,yn,zn,wn,h)
+    elif met == 'BE':
+        h = hh[1]
+        x,y,z,w = backward_euler(xn,yn,zn,wn,h)
+    elif met == 'RK4':
+        h = hh[2]
+        x,y,z,w = runge_kutta4(xn,yn,zn,wn,h)
+    elif met == 'AB6':
+        h = hh[3]
+        x,y,z,w = adams_bashforth(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,
+                                xn3,yn3,zn3,wn3,xn4,yn4,zn4,wn4,xn5,yn5,zn5,wn5,h)
+    elif met == 'AM4':
+        h = hh[4]
+        x,y,z,w = adams_moulton4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,h)
+    elif met == 'G4':
+        h = hh[5]
+        x,y,z,w = gear4(xn,yn,zn,wn,xn1,yn1,zn1,wn1,xn2,yn2,zn2,wn2,xn3,yn3,zn3,wn3,h)
+    else: print("Método no definido")
+
+    xn5,yn5,zn5,wn5 = xn4,yn4,zn4,wn4
+    xn4,yn4,zn4,wn4 = xn3,yn3,zn3,wn3
+    xn3,yn3,zn3,wn3 = xn2,yn2,zn2,wn2
+    xn2,yn2,zn2,wn2 = xn1,yn1,zn1,wn1
+    xn1,yn1,zn1,wn1 = xn,yn,zn,wn
+
+    if b == "umbral": bin = umbral(x,y,z,w,sel)
+    elif b == "mod255": bin = mod255(x,y,z,w,sel)
+    binp = binp + bin
 
     if len(binp)==40 and pos_pro=="xor":
         for j in range(0,40,5):
-            pos_bin = xor(binp[j:j+5])
-            arch.write(str(pos_bin).encode())
+            pos_bin = pos_bin + xor(binp[j:j+5])
+            if len(pos_bin)==8:
+                encryp[element] = int(pos_bin,2)
+                pos_bin = ''
         binp = ''
 
     elif len(binp)==8 and pos_pro == "xor_shift":
-        for j in range (0,8):
-            pos_bin = xor_shift(binp[j])
-            arch.write(pos_bin.encode())
-        binp = ''
+        for j in range(0,8):
+            pos_bin = pos_bin + xor_shift(binp[j])
 
-    if i == ((kk*nstep*n+t)/k)-1:
-        if (r < s-1): arch.write(("\n").encode())
-        i = -1
+    encryp[element] = int(pos_bin,2)
+    pos_bin = ''
+    binp = ''
 
-arch.close
+cv2.imwrite('encryp.png',encryp)
+encryp2 = cv2.imread("encryp.png")
+xor1 = cv2.bitwise_xor(image1, encryp2)
+cv2.imwrite('Xor1.png',xor1)
+xor2 = cv2.bitwise_xor(xor1, encryp2)
+cv2.imwrite('Xor2.png',xor2)

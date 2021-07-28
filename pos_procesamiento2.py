@@ -166,9 +166,9 @@ n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
 nt = (n+t)*s #pasos totales
 
 xo,yo,wo,zo = np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float),np.zeros(s+1,dtype=float)
-c = (50,30,30,2)
+c = (50,30,30,2) #cotas de las condiciones iniciales
 
-for j in range(0,s+1):
+for j in range(0,s+1): #generar condiciones iniciales aleatorias
     xo[j] = (random.random()-0.5)*c[0]
     yo[j] = (random.random()-0.5)*c[1]
     zo[j] = (random.random()-0.5)*c[2]
@@ -180,8 +180,9 @@ print("Estado transitorio:", t)
 print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
+print("Método para posprocesamiento", pos_pro)
 
-salida = b + "_" + met + v + "_" + "xor" + ".rnd"
+salida = b + "_" + met + v + "_" + pos_pro + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
 arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
 print("Archivo de salida: ", salida)
@@ -206,16 +207,8 @@ if pos_pro == "xor": kk = 5
 elif pos_pro == "xor_shift": kk = 1
 else: print("Método no definido")
 
-regA = '000'
-regB = '000'
-regC = '000'
-regD = '000'
-A = 0
-B = 0
-C = 0
-D = 0
-E = 0
-F = 0
+regA,regB,regC,regD = '000','000','000','000'
+A,B,C,D,E,F = 0,0,0,0,0,0
 
 while r < s:
     i = i + 1
@@ -262,16 +255,11 @@ while r < s:
         arch.seek(pos,1)
         i,r = -1,r-1
 
-    #Con frecuencia de muestreo
     if i>(t/k)-1 and (i%nstep)==0:
 
-        if b == "umbral":
-            bin = umbral(x,y,z,w,sel)
-            binp = binp + bin
-
-        elif b == "mod255":
-            bin = mod255(x,y,z,w,sel)
-            binp = binp + bin
+        if b == "umbral": bin = umbral(x,y,z,w,sel)
+        elif b == "mod255": bin = mod255(x,y,z,w,sel)
+        binp = binp + bin
 
     if len(binp)==40 and pos_pro=="xor":
         for j in range(0,40,5):

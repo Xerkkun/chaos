@@ -5,25 +5,64 @@ import random
 #Funciones
 #===============================================================================
 #Ecuaciones del oscilador HO1
+#def Fx1(x,y,z,w):
+#    a,b = 4., 6.
+#    Fx = (a*x) - (b*y*z) - 10.
+#    return Fx
+
+#def Fx2(x,y,z,w):
+#    c,k = 10.,2.5
+#    Fy = (-c*y) + (x*z) + (k*w)
+#    return Fy
+
+#def Fx3(x,y,z,w):
+#    d,e = 5.,2.
+#    Fz = (-d*z) + (e*x*y)
+#    return Fz
+
+#def Fx4(x,y,z,w):
+#    f = 0.05
+#    Fw = f*(x+z)
+#    return Fw
+
+#Ecuaciones del oscilador HO2
+# def Fx1(x,y,z,w):
+#     Fx = y*z
+#     return Fx
+#
+# def Fx2(x,y,z,w):
+#     a = 2.
+#     Fy = x-y-a*w
+#     return Fy
+#
+# def Fx3(x,y,z,w):
+#     Fz = 1-x*x
+#     return Fz
+#
+# def Fx4(x,y,z,w):
+#     b = 0.1
+#     Fw = b*y
+#     return Fw
+#Ecuaciones del oscilador HO3
 def Fx1(x,y,z,w):
-    a,b = 4., 6.
-    Fx = (a*x) - (b*y*z) - 10.
+    a = 16.
+    Fx = a*(y-x) + (y*z) + w
     return Fx
 
 def Fx2(x,y,z,w):
-    c,k = 10.,2.5
-    Fy = (-c*y) + (x*z) + (k*w)
+    b,c,p = 3.,8.,0.1
+    Fy = b*y - c*x*z - p*x**2 + w
     return Fy
 
 def Fx3(x,y,z,w):
-    d,e = 5.,2.
-    Fz = (-d*z) + (e*x*y)
+    d = 20.
+    Fz = x*y - d
     return Fz
 
 def Fx4(x,y,z,w):
-    f = 0.05
-    Fw = f*(x+z)
+    Fw = -x-y
     return Fw
+
 #===============================================================================
 #Métodos numéricos
 def forward_euler(xn,yn,zn,wn,h):
@@ -143,7 +182,7 @@ def xor(binp):
 # bin: método de generación de secuencias binarias (umbral,mod255)
 # nstep: frecuencia de muestreo
 
-nn,ss,tt,met,v,b,nstp = input('Parámetros de entrada: ').split()
+nn,ss,tt,met,v,b,nstp,oscilador = input('Parámetros de entrada: ').split()
 n,s,t,nstep = int(float(nn)),int(ss),int(tt),int(nstp)
 nt = (n+t)*s #pasos totales
 
@@ -163,7 +202,7 @@ print("Método numérico: ", met)
 print("Variable para sec. binarias: ", v)
 print("Metodo sec. binarias: ", b)
 
-salida = b + "_" + met + v + ".rnd"
+salida = oscilador + b + "_" + met + v + ".rnd"
 hh = (0.001,0.01,0.001,0.001,0.005,0.005) #Ancho de paso para cada método
 arch = open(salida,"wb") #"wb" para escribir archivos con formato binario
 print("Archivo de salida: ", salida)
